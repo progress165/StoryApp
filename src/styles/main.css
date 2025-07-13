@@ -1,0 +1,705 @@
+/* src/styles/main.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #eef2f6;
+    color: #333;
+}
+
+/* Header & Navigation Styling */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 20px;
+    display: flex;
+    justify-content: space-between;
+    /* Judul di kiri, Nav di kanan */
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    /* Untuk posisi absolut menu navigasi mobile */
+}
+
+.header-main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    /* Ambil lebar penuh untuk konten utama header */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.main-nav-links {
+    display: flex;
+    justify-content: flex-end;
+    /* Rata kanan di desktop */
+    flex-grow: 1;
+}
+
+.main-nav-links a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.main-nav-links a:hover {
+    color: #1abc9c;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Tombol Hamburger --- */
+.hamburger-button {
+    display: none;
+    /* Sembunyikan di desktop secara default */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    /* Hapus padding default */
+    width: 30px;
+    /* Lebar tombol */
+    height: 30px;
+    /* Tinggi tombol */
+    position: relative;
+    /* Penting untuk posisi absolut ikon */
+    z-index: 1001;
+    /* Pastikan di atas konten lain */
+    /* margin-left: auto; <-- Opsional, jika perlu dorong ke kanan */
+}
+
+.hamburger-icon {
+    display: block;
+    width: 25px;
+    /* Lebar garis */
+    height: 3px;
+    /* Tinggi garis */
+    background-color: white;
+    border-radius: 2px;
+    /* Sedikit rounded */
+    position: absolute;
+    /* Posisikan absolut di dalam tombol */
+    left: 2px;
+    /* Sesuaikan posisi horizontal */
+    transition: all 0.3s ease-in-out;
+    /* Transisi untuk animasi */
+}
+
+/* Posisi awal garis-garis */
+.hamburger-icon:nth-child(1) {
+    top: 5px;
+    /* Garis atas */
+}
+
+.hamburger-icon:nth-child(2) {
+    top: 50%;
+    /* Garis tengah */
+    transform: translateY(-50%);
+    /* Pusatkan vertikal */
+}
+
+.hamburger-icon:nth-child(3) {
+    bottom: 5px;
+    /* Garis bawah */
+}
+
+/* Animasi Hamburger saat aktif (membentuk X) */
+.hamburger-button.is-active .hamburger-icon:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.hamburger-button.is-active .hamburger-icon:nth-child(2) {
+    opacity: 0;
+    /* Sembunyikan garis tengah */
+}
+
+.hamburger-button.is-active .hamburger-icon:nth-child(3) {
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+main {
+    padding: 30px;
+    max-width: 960px;
+    margin: 30px auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 40px;
+    background-color: #34495e;
+    color: #ecf0f1;
+    font-size: 0.9rem;
+}
+
+/* Form & Input Styling */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"],
+.form-group textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    border: none;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Message Area Styling */
+.message-area {
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.message-area.info {
+    background-color: #e0f7fa;
+    color: #00796b;
+}
+
+.message-area.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.message-area.error {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.message-area.warning {
+    background-color: #fffde7;
+    color: #fbc02d;
+}
+
+/* Home Page Specifics */
+.home-page {
+    text-align: center;
+}
+
+.page-title {
+    color: #2c3e50;
+    margin-bottom: 25px;
+}
+
+.actions {
+    margin-bottom: 30px;
+}
+
+.stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.story-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-card:hover {
+    transform: translateY(-5px);
+}
+
+.story-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.story-content {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-title {
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+.story-description {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.story-date {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.loading-message,
+.no-stories-message,
+.error-message {
+    text-align: center;
+    grid-column: 1 / -1;
+    font-style: italic;
+    color: #777;
+    padding: 20px;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Styling untuk Story Detail Page - Umum */
+.story-detail-page {
+    text-align: center;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.detail-page-title {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.detail-story-date {
+    display: block;
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.detail-location-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.detail-author {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.detail-story-image-container {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    max-width: 100%;
+}
+
+.detail-story-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+.detail-info-heading {
+    font-size: 1.5rem;
+    color: #34495e;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.detail-story-description {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.7;
+    text-align: justify;
+    margin-bottom: 30px;
+}
+
+.story-location-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+/* Map specific styling for detail page */
+.detail-map-container {
+    height: 350px;
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+#back-to-home-btn {
+    margin-top: 20px;
+}
+
+.map-container {
+    height: 400px;
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Pastikan styling Leaflet dimuat */
+@import '~leaflet/dist/leaflet.css';
+
+/* Camera & Photo Controls */
+.camera-controls {
+    margin-top: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+#camera-preview,
+#photo-canvas,
+#captured-photo {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 0 auto 15px;
+    display: block;
+}
+
+.camera-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.camera-buttons .btn {
+    flex-grow: 1;
+    max-width: 180px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Location Inputs below map */
+.location-inputs {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.location-inputs label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.location-inputs input {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Peta di halaman Add Story - gunakan #location-map */
+#location-map {
+    height: 300px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* --- View Transition API Styles --- */
+
+/* Default transition for all view transitions (fallback for elements without specific names) */
+::view-transition-old(app-content-main),
+::view-transition-new(app-content-main) {
+    animation-duration: 0.4s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+}
+
+/* Animasi untuk konten lama yang keluar */
+::view-transition-old(app-content-main) {
+    animation-name: slide-out-left-fade;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Animasi untuk konten baru yang masuk */
+::view-transition-new(app-content-main) {
+    animation-name: slide-in-right-fade;
+}
+
+@keyframes slide-out-left-fade {
+    from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(-100%) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-in-right-fade {
+    from {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background-color: #007bff;
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.3s ease-in-out;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+
+.message-area {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.message-area.info {
+    background-color: #e0f7fa;
+    color: #00796b;
+}
+
+.message-area.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.message-area.error {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.message-area.warning {
+    background-color: #fffde7;
+    color: #fbc02d;
+}
+
+/* Styling untuk Halaman Not Found */
+.not-found-page {
+    text-align: center;
+    padding: 50px 20px;
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.not-found-page .page-title {
+    font-size: 2.5rem;
+    color: #e74c3c;
+    /* Warna merah untuk error */
+    margin-bottom: 20px;
+}
+
+.not-found-page p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.not-found-page a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.not-found-page a:hover {
+    text-decoration: underline;
+}
+
+/* --- Media Queries untuk Tampilan Mobile --- */
+@media screen and (max-width: 768px) {
+    header {
+        flex-direction: row;
+        /* Tetap row untuk judul dan hamburger */
+        justify-content: space-between;
+        /* Judul di kiri, hamburger di kanan */
+        padding: 1rem 15px;
+    }
+
+    .header-main-content {
+        width: 100%;
+        /* Ambil lebar penuh */
+        justify-content: space-between;
+        /* Judul di kiri, hamburger di kanan */
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+        text-align: left;
+    }
+
+    .hamburger-button {
+        display: block;
+        /* Tampilkan tombol hamburger di mobile */
+    }
+
+    .main-nav-links {
+        /* Ganti 'nav' menjadi '.main-nav-links' */
+        flex-direction: column;
+        /* Tumpuk link navigasi secara vertikal */
+        background-color: #2c3e50;
+        /* Background menu saat terbuka */
+        position: absolute;
+        /* Posisikan menu di bawah header */
+        top: 100%;
+        /* Mulai dari bawah header */
+        left: 0;
+        width: 100%;
+        height: 0;
+        /* Sembunyikan menu secara default */
+        overflow: hidden;
+        /* Sembunyikan konten yang meluap */
+        transition: height 0.3s ease-in-out;
+        /* Animasi buka/tutup */
+        z-index: 1000;
+        /* Pastikan di atas konten utama */
+        padding: 0;
+        /* Hapus padding default */
+    }
+
+    .main-nav-links.nav-open {
+        /* Ganti 'nav.nav-open' menjadi '.main-nav-links.nav-open' */
+        height: auto;
+        /* Tinggi otomatis saat terbuka */
+        max-height: 300px;
+        /* Batasi tinggi maksimum jika banyak link */
+        padding-bottom: 10px;
+        /* Tambahkan padding bawah saat terbuka */
+    }
+
+    .main-nav-links a {
+        /* Ganti 'nav a' menjadi '.main-nav-links a' */
+        margin: 0;
+        /* Hapus margin horizontal */
+        padding: 12px 20px;
+        /* Padding lebih besar untuk link menu */
+        width: 100%;
+        /* Link mengambil lebar penuh */
+        text-align: left;
+        /* Teks link rata kiri */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* Garis pemisah antar link */
+        box-sizing: border-box;
+    }
+
+    .main-nav-links a:last-child {
+        /* Ganti 'nav a:last-child' menjadi '.main-nav-links a:last-child' */
+        border-bottom: none;
+        /* Hapus garis di link terakhir */
+    }
+}
