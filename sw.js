@@ -1,0 +1,1 @@
+self.addEventListener("install",e=>{console.log("Service Worker (public/sw.js): Installing..."),self.skipWaiting()}),self.addEventListener("activate",e=>{console.log("Service Worker (public/sw.js): Activating..."),e.waitUntil(clients.claim())}),self.addEventListener("fetch",e=>{}),console.log("Service Worker (public/sw.js) loaded.");
