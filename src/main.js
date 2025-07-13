@@ -51,11 +51,11 @@ const appRouter = {
 // --- PWA: Daftarkan Service Worker ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Daftarkan Service Worker yang dihasilkan oleh Workbox GenerateSW (akan ada di root)
-        navigator.serviceWorker.register('/sw.js')
+        // Daftarkan Service Worker dari root domain
+        // Menggunakan window.location.origin untuk memastikan jalur absolut
+        navigator.serviceWorker.register(`${window.location.origin}/sw.js`)
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
-                // Panggil fungsi setup push notification setelah SW terdaftar
                 setupPushNotificationToggle(registration);
             })
             .catch((error) => {

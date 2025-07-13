@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -12,12 +13,12 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].[contenthash].js',
         clean: true,
-
-        publicPath: process.env.NODE_ENV === 'production' ? '/<repository-name>/' : '/',
-
+        // --- PENTING: publicPath sudah diatur ke '/' ---
+        publicPath: '/', // Ini sempurna untuk Firebase Hosting
+        // --- AKHIR VERIFIKASI ---
     },
 
-    mode: 'development', // Mode ini akan di-override oleh cross-env di script build
+    mode: 'production', // Mode ini akan digunakan untuk build
 
     devServer: {
         static: {
@@ -32,15 +33,33 @@ module.exports = {
         },
     },
 
+    resolve: {
+        modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
+        extensions: ['.js', '.json', '.wasm', '.css'],
+    },
+
     module: {
         rules: [
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1,
+                            url: true,
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
+                generator: {
+                    publicPath: '/', // Ini juga harus '/' untuk Firebase Hosting
+                    filename: 'assets/images/[name].[hash][ext]',
+                },
             },
             {
                 test: /\.js$/,
@@ -60,6 +79,35 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'public/index.html'),
             filename: 'index.html',
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, 'public/manifest.json'),
+                    to: path.resolve(__dirname, 'dist/manifest.json'),
+                    noErrorOnMissing: true
+                },
+                {
+                    from: path.resolve(__dirname, 'public/favicon.ico'),
+                    to: path.resolve(__dirname, 'dist/favicon.ico'),
+                    noErrorOnMissing: true
+                },
+                {
+                    from: path.resolve(__dirname, 'public/favicon-32x32.png'),
+                    to: path.resolve(__dirname, 'dist/favicon-32x32.png'),
+                    noErrorOnMissing: true
+                },
+                {
+                    from: path.resolve(__dirname, 'public/images/icons'),
+                    to: path.resolve(__dirname, 'dist/images/icons'),
+                    noErrorOnMissing: true
+                },
+                {
+                    from: path.resolve(__dirname, 'public/images/screenshots'),
+                    to: path.resolve(__dirname, 'dist/images/screenshots'),
+                    noErrorOnMissing: true
+                },
+            ],
         }),
         new WorkboxWebpackPlugin.GenerateSW({
             clientsClaim: true,
