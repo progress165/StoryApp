@@ -4,6 +4,14 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+// --- DEBUGGING JALUR ---
+console.log('Webpack Config Debug: __dirname:', __dirname);
+console.log('Webpack Config Debug: Project Root:', path.resolve(__dirname));
+console.log('Webpack Config Debug: src/main.js Path:', path.resolve(__dirname, 'src/main.js'));
+console.log('Webpack Config Debug: public/ Path:', path.resolve(__dirname, 'public'));
+console.log('Webpack Config Debug: dist/ Path:', path.resolve(__dirname, 'dist'));
+// --- AKHIR DEBUGGING ---
+
 module.exports = {
     entry: {
         main: path.resolve(__dirname, 'src/main.js'),
@@ -13,9 +21,9 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].[contenthash].js',
         clean: true,
-        // --- PENTING: publicPath sudah diatur ke '/' ---
-        publicPath: '/', // Ini sempurna untuk Firebase Hosting
-        // --- AKHIR VERIFIKASI ---
+
+        publicPath: '/', // Untuk Firebase Hosting, publicPath selalu '/'
+        // --- AKHIR PERBAIKAN ---
     },
 
     mode: 'production', // Mode ini akan digunakan untuk build
@@ -57,7 +65,8 @@ module.exports = {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
                 generator: {
-                    publicPath: '/', // Ini juga harus '/' untuk Firebase Hosting
+
+                    publicPath: '/', // Untuk Firebase Hosting, ini juga harus root
                     filename: 'assets/images/[name].[hash][ext]',
                 },
             },
@@ -82,36 +91,21 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {
-                    from: path.resolve(__dirname, 'public/manifest.json'),
-                    to: path.resolve(__dirname, 'dist/manifest.json'),
-                    noErrorOnMissing: true
-                },
-                {
-                    from: path.resolve(__dirname, 'public/favicon.ico'),
-                    to: path.resolve(__dirname, 'dist/favicon.ico'),
-                    noErrorOnMissing: true
-                },
-                {
-                    from: path.resolve(__dirname, 'public/favicon-32x32.png'),
-                    to: path.resolve(__dirname, 'dist/favicon-32x32.png'),
-                    noErrorOnMissing: true
-                },
-                {
-                    from: path.resolve(__dirname, 'public/images/icons'),
-                    to: path.resolve(__dirname, 'dist/images/icons'),
-                    noErrorOnMissing: true
-                },
-                {
-                    from: path.resolve(__dirname, 'public/images/screenshots'),
-                    to: path.resolve(__dirname, 'dist/images/screenshots'),
-                    noErrorOnMissing: true
-                },
+                { from: path.resolve(__dirname, 'public/manifest.json'), to: path.resolve(__dirname, 'dist/manifest.json'), noErrorOnMissing: true },
+                { from: path.resolve(__dirname, 'public/favicon.ico'), to: path.resolve(__dirname, 'dist/favicon.ico'), noErrorOnMissing: true },
+                { from: path.resolve(__dirname, 'public/favicon-32x32.png'), to: path.resolve(__dirname, 'dist/favicon-32x32.png'), noErrorOnMissing: true },
+                { from: path.resolve(__dirname, 'public/images/icons'), to: path.resolve(__dirname, 'dist/images/icons'), noErrorOnMissing: true },
+                { from: path.resolve(__dirname, 'public/images/screenshots'), to: path.resolve(__dirname, 'dist/images/screenshots'), noErrorOnMissing: true },
+                { from: path.resolve(__dirname, 'src/sw-custom-events.js'), to: path.resolve(__dirname, 'dist/sw-custom-events.js'), noErrorOnMissing: true },
             ],
         }),
         new WorkboxWebpackPlugin.GenerateSW({
             clientsClaim: true,
             skipWaiting: true,
+            importScripts: ['/sw-custom-events.js'], // Jalur relatif ke root output
+            navigateFallback: '/index.html',
+            navigateFallbackDenylist: [/^\/api\//, /^\/_/],
+
             runtimeCaching: [
                 {
                     urlPattern: ({ url }) => url.origin === 'https://story-api.dicoding.dev',

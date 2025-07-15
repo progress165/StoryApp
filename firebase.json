@@ -14,7 +14,7 @@
     ],
     "headers": [
       {
-        "source": "/sw.js",
+        "source": "/service-worker.js",
         "headers": [
           {
             "key": "Content-Type",
@@ -27,7 +27,33 @@
         ]
       },
       {
-        "source": "**/*.{js,css,png,jpg,jpeg,gif,svg,ico,json,webmanifest}",
+        "source": "/sw-custom-events.js",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/manifest.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/manifest+json"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.{js,css,png,jpg,jpeg,gif,svg,ico,webmanifest}",
         "headers": [
           {
             "key": "Cache-Control",

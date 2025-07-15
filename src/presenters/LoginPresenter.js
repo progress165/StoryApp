@@ -1,11 +1,5 @@
-// src/presenters/LoginPresenter.js
 import { apiLogin } from '../utils/api'; // Model
 
-/**
- * LoginPresenter bertanggung jawab untuk logika login.
- * @param {object} view - Objek yang menyediakan metode untuk memanipulasi UI (View).
- * @param {object} router - Objek yang menyediakan metode untuk navigasi rute.
- */
 class LoginPresenter {
     constructor(view, router) {
         this.view = view;
@@ -19,9 +13,6 @@ class LoginPresenter {
         const result = await apiLogin(email, password); // Panggil Model
 
         if (!result.error) {
-            // --- PERBAIKAN DI SINI! ---
-            // apiLogin sekarang mengembalikan { error: false, message: ..., token: ... }
-            // Jadi, kita langsung cek result.token
             if (result.token) {
                 localStorage.setItem('userToken', result.token);
                 this.view.displayMessage('Login successful! Redirecting to home...', 'success');

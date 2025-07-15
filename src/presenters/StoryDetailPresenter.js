@@ -1,13 +1,16 @@
-import { apiGetStoryDetail } from '../utils/api';
+import { apiGetStoryDetail, apiGetStories } from '../utils/api'; // <-- Import apiGetStories juga
+import { getStoriesFromDb } from '../utils/indexeddb'; // <-- Import getStoriesFromDb
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 
 const MAPTILER_API_KEY = 'hDOFAljNTLeFb76lmDks';
+// --- AKHIR API KEY ---
 
+// Mengimpor gambar-gambar default ikon Leaflet (untuk marker)
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: iconRetinaUrl,
@@ -21,7 +24,7 @@ class StoryDetailPresenter {
         this.view = view;
         this.storyId = storyId;
         this.router = router;
-        this.mapInstance = null; // Instance peta
+        this.mapInstance = null;
 
         this.view.setBackToHomeButtonHandler(this.handleBackToHomeClick.bind(this));
         this.loadStoryDetail(); // Muat detail cerita saat presenter diinisialisasi
@@ -33,22 +36,55 @@ class StoryDetailPresenter {
 
     async loadStoryDetail() {
         this.view.showLoadingMessage();
+        let story = null;
+        let fromCache = false;
 
-        const result = await apiGetStoryDetail(this.storyId); // Panggil Model
+        try {
+            // Coba ambil dari jaringan terlebih dahulu
+            const networkResult = await apiGetStoryDetail(this.storyId);
+            if (!networkResult.error && networkResult.story) {
+                story = networkResult.story;
+                // Tidak perlu menyimpan ke IndexedDB di sini karena HomePresenter sudah menyimpannya
+                // saat mengambil daftar cerita.
+                this.view.displayMessage('Story loaded from network.', 'info');
+            } else {
+                // Jika jaringan gagal atau ada error, coba dari IndexedDB
+                console.warn('Network fetch for story detail failed, trying IndexedDB...');
+                const allStories = await getStoriesFromDb(); // Ambil SEMUA cerita dari DB
+                story = allStories.find(s => s.id === this.storyId); // Cari cerita spesifik
+                fromCache = true;
+                if (story) {
+                    this.view.displayMessage('Story loaded from offline cache.', 'warning');
+                } else {
+                    this.view.displayMessage('Story not found offline and network failed.', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load story detail from network, attempting IndexedDB:', error);
+            try {
+                const allStories = await getStoriesFromDb();
+                story = allStories.find(s => s.id === this.storyId);
+                fromCache = true;
+                if (story) {
+                    this.view.displayMessage('Story loaded from offline cache.', 'warning');
+                } else {
+                    this.view.displayMessage('Story not found offline and network failed.', 'error');
+                }
+            } catch (dbError) {
+                console.error('Failed to load story detail from IndexedDB:', dbError);
+                this.view.displayMessage('Failed to load story detail from any source.', 'error');
+            }
+        }
 
-        if (!result.error && result.story) {
-            const story = result.story;
+        if (story) {
             this.view.renderStoryDetails(story); // Beri tahu View untuk merender detail
-
-            // Inisialisasi peta jika ada data lokasi
             if (story.lat !== null && story.lon !== null) {
                 this.initializeMap(story);
             } else {
                 this.view.showLocationNotAvailable();
             }
-
         } else {
-            this.view.showErrorMessage(result.message || 'Failed to load story details.');
+            this.view.showErrorMessage('Failed to load story details.');
         }
     }
 
@@ -74,11 +110,10 @@ class StoryDetailPresenter {
             .openPopup();
 
         setTimeout(() => {
-            this.mapInstance.invalidateSize();
+            if (this.mapInstance) this.mapInstance.invalidateSize();
         }, 100);
     }
 
-    // Metode untuk membersihkan peta saat presenter tidak lagi dibutuhkan
     destroy() {
         if (this.mapInstance) {
             console.log("Destroying StoryDetailPresenter map instance.");

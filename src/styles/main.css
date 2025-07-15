@@ -703,3 +703,50 @@ footer {
         /* Hapus garis di link terakhir */
     }
 }
+
+/* Styling untuk Halaman Cerita Favorit (mirip Home Page) */
+.favorite-stories-page {
+    text-align: center;
+    padding: 20px;
+    max-width: 960px;
+    margin: 30px auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-stories-page .page-title {
+    color: #2c3e50;
+    margin-bottom: 25px;
+}
+
+/* Styling untuk tombol "Save Offline" di story card */
+.story-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    /* Dorong ke bawah */
+    padding-top: 10px;
+    /* Jarak dari deskripsi */
+    border-top: 1px solid #eee;
+    /* Garis pemisah */
+}
+
+.story-actions .btn {
+    margin: 0 5px;
+    /* Jarak antar tombol */
+}
+
+.story-actions .btn-secondary {
+    flex-grow: 1;
+    /* Biarkan "Read More" lebih besar */
+}
+
+.story-actions .save-story-btn,
+.story-actions .remove-story-btn {
+    flex-grow: 0;
+    /* Jangan biarkan tombol save/remove terlalu besar */
+    white-space: nowrap;
+    /* Jangan pecah teks tombol */
+}

@@ -1,13 +1,19 @@
-export function renderHeader(headerElement, mainContentContainer) {
+// src/components/header.js
+export function renderHeader(navigationContainer, mainContentContainer) {
     const userToken = localStorage.getItem('userToken');
     console.log("Header Render: userToken status =", userToken ? "Logged In" : "Logged Out");
-    console.log("Header Render: headerElement =", headerElement); // <-- Log elemen header
+    console.log("Header Render: navigationContainer element =", navigationContainer);
 
-    if (!headerElement) { // <-- Cek langsung headerElement
-        console.error("Header Render: Header element is null! Cannot render header.");
+    if (!navigationContainer) {
+        console.error("Header Render: navigationContainer is null! Cannot render header links.");
         return;
     }
 
+    const headerElement = navigationContainer.closest('header');
+    if (!headerElement) {
+        console.error("Header Render: Parent <header> element not found.");
+        return;
+    }
 
     headerElement.innerHTML = `
         <h1>Story App</h1>
@@ -16,24 +22,18 @@ export function renderHeader(headerElement, mainContentContainer) {
             <span class="hamburger-icon"></span>
             <span class="hamburger-icon"></span>
         </button>
-        <nav id="app-navigation" class="main-nav-links"> <!-- <-- Gunakan ID yang sama -->
-            <!-- Link navigasi akan dimuat di sini oleh JS -->
+        <nav id="main-nav-links" class="main-nav-links">
+            <!-- Navigasi akan dimuat di sini oleh JS -->
         </nav>
     `;
-    // --- AKHIR REVISI ---
 
-    // Dapatkan referensi elemen anak dari headerElement yang baru saja dibangun ulang
-    const mainNavLinks = headerElement.querySelector('#app-navigation'); // <-- Seleksi dari headerElement
-    const hamburgerButton = headerElement.querySelector('#hamburger-button'); // <-- Seleksi dari headerElement
-
-    if (!mainNavLinks || !hamburgerButton) { // <-- Tambahkan cek ini
-        console.error("Header Render: Navigation or hamburger button not found after rebuilding header.");
-        return;
-    }
+    const mainNavLinks = document.getElementById('main-nav-links');
+    const hamburgerButton = document.getElementById('hamburger-button');
 
     const navLinksData = [
         { name: 'Home', path: '#/' },
         { name: 'Add Story', path: '#/add', authRequired: true },
+        { name: 'Saved Stories', path: '#/favorites', authRequired: true }, // <-- Tambahkan link ini
         { name: 'Login', path: '#/login', guestOnly: true },
         { name: 'Register', path: '#/register', guestOnly: true },
         { name: 'Push', action: 'togglePush', authRequired: true },
@@ -82,6 +82,6 @@ export function renderHeader(headerElement, mainContentContainer) {
             });
         });
     } else {
-        console.warn("Header Render: Hamburger button or main navigation links not found (after rebuild).");
+        console.warn("Header Render: Hamburger button or main navigation links not found.");
     }
 }

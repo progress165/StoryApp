@@ -1,4 +1,3 @@
-// src/main.js
 import '../src/styles/main.css';
 import { renderHeader } from './components/header';
 import { renderLoginPage } from './pages/login';
@@ -12,11 +11,13 @@ import AddStoryPresenter from './presenters/AddStoryPresenter';
 import { renderStoryDetailPage } from './pages/story-detail';
 import StoryDetailPresenter from './presenters/StoryDetailPresenter';
 import { renderNotFoundPage } from './pages/not-found';
+import { renderFavoriteStoriesPage } from './pages/favorite-stories'; // <-- Import halaman favorit
+import FavoriteStoriesPresenter from './presenters/FavoriteStoriesPresenter'; // <-- Import presenter favorit
 import { apiSubscribePush, apiUnsubscribePush } from './utils/api';
 
 const appContent = document.getElementById('app-content');
-const appNavigation = document.getElementById('app-navigation'); // Ini masih <nav>
-const appHeader = document.getElementById('app-header'); // <-- Dapatkan elemen <header>
+const appNavigation = document.getElementById('app-navigation');
+const appHeader = document.getElementById('app-header');
 
 if (!appContent) {
     console.error("Error: Element with ID 'app-content' not found in index.html!");
@@ -24,7 +25,7 @@ if (!appContent) {
 if (!appNavigation) {
     console.warn("Warning: Element with ID 'app-navigation' not found in index.html! (This is fine if header is rebuilt)");
 }
-if (!appHeader) { // <-- Tambahkan cek ini
+if (!appHeader) {
     console.error("Error: Element with ID 'app-header' not found in index.html!");
 }
 
@@ -36,8 +37,7 @@ const appRouter = {
         window.location.hash = path;
     },
     updateHeader: () => {
-        // Lewatkan elemen <header> langsung ke renderHeader
-        renderHeader(appHeader, appContent); // <-- UBAH PARAMETER PERTAMA
+        renderHeader(appHeader, appContent);
     },
     destroyCurrentPresenter: () => {
         if (currentPresenter && typeof currentPresenter.destroy === 'function') {
@@ -51,9 +51,7 @@ const appRouter = {
 // --- PWA: Daftarkan Service Worker ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Daftarkan Service Worker dari root domain
-        // Menggunakan window.location.origin untuk memastikan jalur absolut
-        navigator.serviceWorker.register(`${window.location.origin}/sw.js`)
+        navigator.serviceWorker.register(`${window.location.origin}/service-worker.js`)
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
                 setupPushNotificationToggle(registration);
@@ -235,7 +233,7 @@ const handleRoute = async () => {
 };
 
 const renderPageContent = (path, userToken) => {
-    const validRoutes = ['register', 'login', '', 'add', 'stories/'];
+    const validRoutes = ['register', 'login', '', 'add', 'stories/', 'favorites']; // <-- Tambahkan 'favorites'
 
     if (path === 'register') {
         console.log("renderPageContent: Routing to REGISTER page.");
@@ -274,7 +272,17 @@ const renderPageContent = (path, userToken) => {
         console.log(`renderPageContent: Routing to STORY DETAIL page for ID: ${storyId}.`);
         const storyDetailView = renderStoryDetailPage(appContent);
         currentPresenter = new StoryDetailPresenter(storyDetailView, storyId, appRouter);
-    } else {
+    } else if (path === 'favorites') { // <-- Tambahkan routing untuk halaman favorit
+        if (!userToken) {
+            console.log("renderPageContent: User not logged in, redirecting to LOGIN for 'favorites' route.");
+            window.location.hash = '/login';
+            return;
+        }
+        console.log("renderPageContent: Routing to FAVORITE STORIES page.");
+        const favoriteStoriesView = renderFavoriteStoriesPage(appContent);
+        currentPresenter = new FavoriteStoriesPresenter(favoriteStoriesView, appRouter);
+    }
+    else {
         console.log("renderPageContent: Unknown path, routing to NOT FOUND page. Path =", path);
         renderNotFoundPage(appContent);
     }

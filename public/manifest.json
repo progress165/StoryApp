@@ -66,14 +66,14 @@
     "screenshots": [
         {
             "src": "/images/screenshots/desktop-screenshot.png",
-            "sizes": "1280x720",
+            "sizes": "1280x800",
             "type": "image/png",
             "form_factor": "wide",
             "label": "Tampilan Aplikasi di Desktop"
         },
         {
             "src": "/images/screenshots/mobile-screenshot.png",
-            "sizes": "720x1280",
+            "sizes": "428x926",
             "type": "image/png",
             "form_factor": "narrow",
             "label": "Tampilan Aplikasi di Mobile"

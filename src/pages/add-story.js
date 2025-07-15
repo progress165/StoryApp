@@ -1,8 +1,6 @@
-// src/pages/add-story.js (View)
 import 'leaflet/dist/leaflet.css'; // Import CSS Leaflet
 import L from 'leaflet';           // Import object Leaflet
 
-// --- PENTING: API KEY MAPTILER ANDA ---
 const MAPTILER_API_KEY = 'hDOFAljNTLeFb76lmDks';
 // --- AKHIR API KEY ---
 
@@ -12,20 +10,13 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-// Pastikan Leaflet icon path diatur sekali saja untuk seluruh aplikasi
+
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: iconRetinaUrl,
     iconUrl: iconUrl,
     shadowUrl: shadowUrl,
 });
 
-/**
- * renderAddStoryPage bertanggung jawab untuk merender UI tambah cerita baru.
- * Ini adalah bagian "View" dari pola MVP.
- * View sekarang mengelola inisialisasi kamera dan peta, serta state-nya sendiri.
- * @param {HTMLElement} container - Elemen DOM tempat konten akan dirender.
- * @returns {object} Objek View dengan metode untuk interaksi UI dan permintaan Presenter.
- */
 export function renderAddStoryPage(container) {
     container.innerHTML = `
         <section class="add-story-page">
@@ -228,7 +219,7 @@ export function renderAddStoryPage(container) {
     };
 
 
-    // --- View Methods Exposed to Presenter ---
+
     return {
         // Event Handlers to be set by Presenter
         setOpenCameraButtonHandler: (handler) => openCameraBtn.addEventListener('click', handler),

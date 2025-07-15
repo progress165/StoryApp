@@ -1,3 +1,22 @@
+import 'leaflet/dist/leaflet.css'; // Import CSS Leaflet
+import L from 'leaflet';           // Import object Leaflet
+
+
+const MAPTILER_API_KEY = 'hDOFAljNTLeFb76lmDks';
+// --- AKHIR API KEY ---
+
+// Mengimpor gambar-gambar default ikon Leaflet (untuk marker)
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: iconRetinaUrl,
+    iconUrl: iconUrl,
+    shadowUrl: shadowUrl,
+});
+
+
 export function renderStoryDetailPage(container) {
     // Struktur dasar halaman detail, akan diisi detail setelah fetch
     container.innerHTML = `
@@ -17,62 +36,71 @@ export function renderStoryDetailPage(container) {
     mapDivContainer.id = 'map'; // ID ini penting untuk Leaflet
     mapDivContainer.className = 'detail-map-container';
 
-    // --- Metode yang akan dipanggil oleh Presenter untuk mengikat event ---
-    const setBackToHomeButtonHandler = (handler) => {
-        backToHomeBtn.addEventListener('click', handler);
+    // --- Metode Internal untuk Mengelola Tampilan ---
+    const _displayMessage = (message, type) => {
+        storyDetailMessage.textContent = message;
+        storyDetailMessage.className = `message-area ${type}`;
     };
 
-    // --- Metode yang akan dipanggil oleh Presenter untuk memperbarui UI ---
-    const showLoadingMessage = () => {
-        storyDetailContent.innerHTML = `<p class="loading-message">Loading story details...</p>`;
-        storyDetailContent.classList.remove('hidden');
+    const _clearMessage = () => {
         storyDetailMessage.textContent = '';
         storyDetailMessage.className = 'message-area';
     };
 
-    const renderStoryDetails = (story) => {
-        storyDetailContent.innerHTML = `
-            <h2 class="detail-page-title">${story.name}</h2>
-            <span class="detail-story-date">Published on: ${new Date(story.createdAt).toLocaleDateString()}</span>
-            <p class="detail-location-text">
-                Latitude: ${story.lat !== null ? story.lat.toFixed(6) : 'N/A'}
-                Longitude: ${story.lon !== null ? story.lon.toFixed(6) : 'N/A'}
-            </p>
-            <p class="detail-author">Dilaporkan oleh: ${story.name}</p> <div class="detail-story-image-container">
-                <img src="${story.photoUrl}" alt="${story.description}" class="detail-story-image">
-            </div>
 
-            <h3 class="detail-info-heading">Informasi Lengkap</h3>
-            <p class="detail-story-description">${story.description}</p>
-
-            <h3 class="detail-info-heading">Peta Lokasi</h3>
-            `;
-        // Sisipkan div peta setelah konten detail lainnya
-        if (story.lat !== null && story.lon !== null) {
-            storyDetailContent.appendChild(mapDivContainer);
-        }
-
-        storyDetailContent.classList.remove('loading-message');
-    };
-
-    const showErrorMessage = (message) => {
-        storyDetailContent.innerHTML = `<p class="error-message">Failed to load story details.</p>`;
-        storyDetailMessage.textContent = `Error: ${message}`;
-        storyDetailMessage.className = 'message-area error';
-    };
-
-    const showLocationNotAvailable = () => {
-        storyDetailContent.insertAdjacentHTML('beforeend', '<p class="info-message">Location data not available for this story.</p>');
-    };
-
-    const getMapContainerElement = () => mapDivContainer; // Mengembalikan elemen div yang akan digunakan peta
-
+    // --- View Methods Exposed to Presenter ---
     return {
-        setBackToHomeButtonHandler,
-        showLoadingMessage,
-        renderStoryDetails,
-        showErrorMessage,
-        showLocationNotAvailable,
-        getMapContainerElement,
+        setBackToHomeButtonHandler: (handler) => {
+            backToHomeBtn.addEventListener('click', handler);
+        },
+
+        showLoadingMessage: () => {
+            storyDetailContent.innerHTML = `<p class="loading-message">Loading story details...</p>`;
+            storyDetailContent.classList.remove('hidden');
+            _clearMessage(); // Clear any previous messages
+        },
+
+        renderStoryDetails: (story) => {
+            storyDetailContent.innerHTML = `
+                <h2 class="detail-page-title">${story.name}</h2>
+                <span class="detail-story-date">Published on: ${new Date(story.createdAt).toLocaleDateString()}</span>
+                <p class="detail-location-text">
+                    Latitude: ${story.lat !== null ? story.lat.toFixed(6) : 'N/A'}
+                    Longitude: ${story.lon !== null ? story.lon.toFixed(6) : 'N/A'}
+                </p>
+                <p class="detail-author">Dilaporkan oleh: ${story.name}</p>
+
+                <div class="detail-story-image-container">
+                    <img src="${story.photoUrl}" alt="${story.description}" class="detail-story-image">
+                </div>
+
+                <h3 class="detail-info-heading">Informasi Lengkap</h3>
+                <p class="detail-story-description">${story.description}</p>
+                
+                <h3 class="detail-info-heading">Peta Lokasi</h3>
+            `;
+            // Sisipkan div peta setelah konten detail lainnya
+            if (story.lat !== null && story.lon !== null) {
+                storyDetailContent.appendChild(mapDivContainer);
+            }
+
+            storyDetailContent.classList.remove('loading-message');
+        },
+
+        showErrorMessage: (message) => {
+            storyDetailContent.innerHTML = `<p class="error-message">Failed to load story details.</p>`;
+            _displayMessage(`Error: ${message}`, 'error');
+        },
+
+        showLocationNotAvailable: () => {
+            storyDetailContent.insertAdjacentHTML('beforeend', '<p class="info-message">Location data not available for this story.</p>');
+        },
+
+        getMapContainerElement: () => mapDivContainer,
+
+        // --- TAMBAHKAN METODE INI UNTUK PRESENTER ---
+        displayMessage: (message, type) => _displayMessage(message, type),
+        clearMessage: () => _clearMessage(),
+        // --- AKHIR PENAMBAHAN ---
     };
 }

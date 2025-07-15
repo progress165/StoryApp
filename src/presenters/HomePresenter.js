@@ -1,10 +1,10 @@
 import { apiGetStories } from '../utils/api';
-import { putStories, getStoriesFromDb, clearAllStoriesFromDb } from '../utils/indexeddb'; // <-- Import fungsi IndexedDB
+import { putStories, getStoriesFromDb, clearAllStoriesFromDb, putFavoriteStory, getFavoriteStories, deleteFavoriteStory } from '../utils/indexeddb'; // <-- Import fungsi IndexedDB baru
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// --- PENTING: API KEY MAPTILER ANDA ---
-const MAPTILER_API_KEY = 'hDOFAljNTLeFb76lmDks'; // Pastikan ini adalah API Key MapTiler Anda
+
+const MAPTILER_API_KEY = 'hDOFAljNTLeFb76lmDks';
 // --- AKHIR API KEY ---
 
 // Mengimpor gambar-gambar default ikon Leaflet (untuk marker)
@@ -22,13 +22,15 @@ class HomePresenter {
     constructor(view, router) {
         this.view = view;
         this.router = router;
-        this.mapInstance = null; // Instance peta
-        this.storyMarkers = []; // Menyimpan marker cerita
+        this.mapInstance = null;
+        this.storyMarkers = [];
+        this.allFetchedStories = []; // Untuk menyimpan semua cerita yang diambil
 
         // Mengikat event handler dari View ke Presenter
         this.view.setAddStoryClickHandler(this.handleAddStoryClick.bind(this));
-        // Tambahkan handler untuk tombol "Clear Offline Data"
         this.view.setClearOfflineDataClickHandler(this.handleClearOfflineDataClick.bind(this));
+        this.view.setViewFavoriteStoriesClickHandler(this.handleViewFavoriteStoriesClick.bind(this)); // <-- Handler baru
+        this.view.setSaveStoryClickHandler(this.handleSaveStoryClick.bind(this)); // <-- Handler baru
 
         this.loadStories(); // Muat cerita saat presenter diinisialisasi
     }
@@ -37,18 +39,39 @@ class HomePresenter {
         this.router.navigateTo('/add');
     }
 
+    handleViewFavoriteStoriesClick() { // <-- Handler baru
+        this.router.navigateTo('/favorites'); // Arahkan ke halaman favorit
+    }
+
     async handleClearOfflineDataClick() {
-        this.view.displayMessage('Clearing offline data...', 'info');
+        this.view.displayMessage('Clearing all offline cache...', 'info');
         try {
-            await clearAllStoriesFromDb(); // Panggil fungsi dari IndexedDB util
-            this.view.displayMessage('Offline data cleared successfully.', 'success');
-            // Muat ulang cerita dari jaringan setelah membersihkan data offline
-            await this.loadStories();
+            await clearAllStoriesFromDb(); // Menghapus cache umum
+            await this.loadStories(); // Muat ulang cerita dari jaringan
+            this.view.displayMessage('All offline data cleared successfully.', 'success');
         } catch (error) {
-            console.error('Failed to clear offline data:', error);
-            this.view.displayMessage('Failed to clear offline data.', 'error');
+            console.error('Failed to clear all offline data:', error);
+            this.view.displayMessage('Failed to clear all offline data.', 'error');
         }
     }
+
+    async handleSaveStoryClick(storyId, storyElement) { // <-- Handler baru
+        this.view.displayMessage('Saving story offline...', 'info');
+        try {
+            const storyToSave = this.allFetchedStories.find(s => s.id === storyId);
+            if (storyToSave) {
+                await putFavoriteStory(storyToSave); // Simpan cerita ke store favorit
+                this.view.displayMessage('Story saved offline successfully!', 'success');
+                this.view.updateSaveButtonStatus(storyId, true); // Perbarui status tombol
+            } else {
+                this.view.displayMessage('Story not found to save.', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to save story offline:', error);
+            this.view.displayMessage('Failed to save story offline.', 'error');
+        }
+    }
+
 
     async loadStories() {
         this.view.showLoadingMessage();
@@ -56,17 +79,16 @@ class HomePresenter {
         let fromCache = false;
 
         try {
-            // Coba ambil dari jaringan terlebih dahulu
-            const networkResult = await apiGetStories(); // Panggil API jaringan
+            const networkResult = await apiGetStories();
             if (!networkResult.error && networkResult.listStory && Array.isArray(networkResult.listStory)) {
                 stories = networkResult.listStory;
-                // Simpan ke IndexedDB setelah berhasil dari jaringan
-                await putStories(stories); // Simpan ke IndexedDB
+                this.allFetchedStories = stories; // Simpan semua cerita yang diambil
+                await putStories(stories); // Simpan ke IndexedDB (cache umum)
                 this.view.displayMessage('Stories loaded from network.', 'info');
             } else {
-                // Jika jaringan gagal atau ada error, coba dari IndexedDB
                 console.warn('Network fetch failed or returned error, trying IndexedDB...');
-                stories = await getStoriesFromDb(); // Ambil dari IndexedDB
+                stories = await getStoriesFromDb();
+                this.allFetchedStories = stories; // Simpan juga jika dari cache
                 fromCache = true;
                 if (stories.length > 0) {
                     this.view.displayMessage('Stories loaded from offline cache.', 'warning');
@@ -75,10 +97,10 @@ class HomePresenter {
                 }
             }
         } catch (error) {
-            // Ini akan terpicu jika ada masalah jaringan (misal offline total)
             console.error('Failed to load stories from network, attempting IndexedDB:', error);
             try {
-                stories = await getStoriesFromDb(); // Coba dari IndexedDB
+                stories = await getStoriesFromDb();
+                this.allFetchedStories = stories;
                 fromCache = true;
                 if (stories.length > 0) {
                     this.view.displayMessage('Stories loaded from offline cache.', 'warning');
@@ -88,19 +110,22 @@ class HomePresenter {
             } catch (dbError) {
                 console.error('Failed to load stories from IndexedDB:', dbError);
                 this.view.displayMessage('Failed to load any stories.', 'error');
-                stories = []; // Pastikan array kosong jika semua gagal
+                stories = [];
             }
         }
 
+        // Dapatkan daftar ID cerita favorit untuk memperbarui status tombol
+        const favoritedStories = await getFavoriteStories();
+        const favoritedStoryIds = new Set(favoritedStories.map(s => s.id));
+
         if (stories.length > 0) {
-            this.view.renderStoryCards(stories); // Beri tahu View untuk merender kartu cerita
-            this.initializeMap(stories); // Inisialisasi atau perbarui peta
+            this.view.renderStoryCards(stories, favoritedStoryIds); // Teruskan ID favorit
+            this.initializeMap(stories);
         } else if (!fromCache) {
-            // Tampilkan pesan error hanya jika tidak ada cerita dari cache dan network gagal
             this.view.showErrorMessage('Failed to load stories from any source.');
         }
 
-        this.view.hideLoadingMessage(); // Beri tahu View untuk menyembunyikan pesan loading
+        this.view.hideLoadingMessage();
     }
 
     initializeMap(stories) {
@@ -110,7 +135,7 @@ class HomePresenter {
                 console.error("Map container not found in Home View.");
                 return;
             }
-            this.mapInstance = L.map(mapContainer).setView([0, 0], 2); // Default view
+            this.mapInstance = L.map(mapContainer).setView([0, 0], 2);
             L.tileLayer(
                 `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`,
                 {
@@ -119,7 +144,7 @@ class HomePresenter {
             ).addTo(this.mapInstance);
 
             setTimeout(() => {
-                this.mapInstance.invalidateSize();
+                if (this.mapInstance) this.mapInstance.invalidateSize();
             }, 100);
         } else {
             this.storyMarkers.forEach(marker => {
